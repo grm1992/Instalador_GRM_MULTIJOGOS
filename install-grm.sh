@@ -122,4 +122,4 @@ echo "  REINICIANDO EM 5 SEGUNDOS..."
 echo "========================================"
 
 sleep 5
-reboot
+reboot# Atualização Sun Mar  1 21:56:39 -03 2026
