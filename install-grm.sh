@@ -3,8 +3,8 @@
 # GRM MULTIJOGOS - INSTALADOR OFICIAL
 # =====================================================
 
-# URL base (seu servidor)
-BASE_URL="https://seu-servidor.com/grm"
+# URL base (GitHub raw)
+BASE_URL="https://raw.githubusercontent.com/guilhermeramosmartins-cloud/grm-instalador/main"
 
 clear
 echo "========================================"
@@ -19,17 +19,32 @@ echo "🔑 DIGITE SEU CÓDIGO DE ACESSO (1 uso):"
 read -s CODE
 echo ""
 
-# Valida código (você implementa a validação no servidor)
-RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -d "code=$CODE" "$BASE_URL/validate.php")
-if [ "$RESPONSE" != "200" ]; then
-    echo "❌ CÓDIGO INVÁLIDO OU JÁ USADO!"
+# Como não temos validate.php no GitHub, vamos fazer validação local
+# CÓDIGOS VÁLIDOS (você edita manualmente)
+VALID_CODES=(
+    "GRM-8F3A2B1C9D4E5F6A"
+    "GRM-1A2B3C4D5E6F7A8B"
+    "GRM-C9F8E7D6C5B4A392"
+    "GRM-TESTE-123"
+)
+
+VALID=0
+for valid in "${VALID_CODES[@]}"; do
+    if [ "$CODE" == "$valid" ]; then
+        VALID=1
+        break
+    fi
+done
+
+if [ $VALID -eq 0 ]; then
+    echo "❌ CÓDIGO INVÁLIDO!"
     exit 1
 fi
 echo "✅ Código válido!"
 echo ""
 
 # =====================================================
-# PARAR O EMULATIONSTATION
+# PARANDOO EMULATIONSTATION
 # =====================================================
 echo "▶ Parando EmulationStation..."
 /etc/init.d/S31emulationstation stop
@@ -38,7 +53,7 @@ echo "✅ OK"
 echo ""
 
 # =====================================================
-# BAIXAR E COPIAR A PASTA GRM-COMMERCIAL
+# FAZENDO DOWNLOAD DO SISTEMA
 # =====================================================
 echo "▶ Baixando pasta grm-commercial..."
 wget -qO /tmp/grm-commercial.tar.gz "$BASE_URL/grm-commercial.tar.gz"
@@ -54,19 +69,19 @@ echo "✅ Pasta copiada"
 echo ""
 
 # =====================================================
-# BAIXAR E INSTALAR O batocera.conf
+# BAIXANDO E INSTALANDO DEPENDENCIAS
 # =====================================================
 echo "▶ Baixando batocera.conf..."
 wget -qO /userdata/system/batocera.conf "$BASE_URL/batocera.conf"
 if [ $? -eq 0 ]; then
     echo "✅ batocera.conf instalado"
 else
-    echo "⚠️  Aviso: batocera.conf não encontrado no servidor"
+    echo "⚠️  Aviso: batocera.conf não encontrado"
 fi
 echo ""
 
 # =====================================================
-# BAIXAR E COPIAR O BINÁRIO
+# TRANSFERINDO ARQUIVOS
 # =====================================================
 echo "▶ Baixando novo binário..."
 wget -qO /tmp/emulationstation "$BASE_URL/emulationstation"
@@ -83,7 +98,7 @@ echo "✅ Binário instalado"
 echo ""
 
 # =====================================================
-# ATIVAR LICENÇA
+# ATIVANDO MULTIJOGOS
 # =====================================================
 echo "▶ Ativando licença..."
 /usr/bin/emulationstation --chopper
@@ -96,7 +111,7 @@ fi
 echo ""
 
 # =====================================================
-# SALVAR OVERLAY
+# SALVANDO...
 # =====================================================
 echo "▶ Salvando overlay..."
 batocera-save-overlay 150
@@ -109,12 +124,12 @@ fi
 echo ""
 
 # =====================================================
-# LIMPEZA
+# LIMPEZA DE CASH
 # =====================================================
 rm -f /tmp/grm-commercial.tar.gz /tmp/emulationstation
 
 # =====================================================
-# REINICIAR
+# REINICIANDO SISTEMA...
 # =====================================================
 echo "========================================"
 echo "  INSTALAÇÃO CONCLUÍDA COM SUCESSO!"
@@ -122,4 +137,4 @@ echo "  REINICIANDO EM 5 SEGUNDOS..."
 echo "========================================"
 
 sleep 5
-reboot# Atualização Sun Mar  1 21:56:39 -03 2026
+reboot
