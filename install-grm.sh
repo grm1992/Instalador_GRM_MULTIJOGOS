@@ -34,7 +34,7 @@ fi
 
 # Parar EmulationStation
 echo -e "${AMAR}[1/5] Parando EmulationStation...${RESET}"
-/etc/init.d/S31emulationstation stop
+#/etc/init.d/S31emulationstation stop
 sleep 2
 
 # Baixar grm-commercial.tar.gz
@@ -77,7 +77,7 @@ fi
 
 # Iniciar EmulationStation
 echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
-/etc/init.d/S31emulationstation start
+/etc/init.d/S31emulationstation restart
 
 echo ""
 echo -e "${VERD}================================${RESET}"
