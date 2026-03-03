@@ -1,140 +1,75 @@
 #!/bin/bash
-# =====================================================
-# GRM MULTIJOGOS - INSTALADOR OFICIAL
-# =====================================================
 
-# URL base (GitHub raw)
-BASE_URL="https://raw.githubusercontent.com/guilhermeramosmartins-cloud/grm-instalador/main"
+# ============================================
+# INSTALADOR GRM MULTIJOGOS
+# By: (33) 991619949
+# ============================================
+
+# Cores
+VERM='\033[0;31m'
+VERD='\033[0;32m'
+AMAR='\033[1;33m'
+AZUL='\033[0;34m'
+CIAN='\033[0;36m'
+RESET='\033[0m'
+
+# 👇 SEU USUÁRIO DO GITHUB
+GITHUB_USER="SEU_USUARIO"
+GITHUB_REPO="grm-multijogos"
 
 clear
-echo "========================================"
-echo "  GRM MULTIJOGOS - INSTALADOR v1.0"
-echo "========================================"
+echo -e "${CIAN}================================${RESET}"
+echo -e "${VERD}   INSTALADOR GRM MULTIJOGOS${RESET}"
+echo -e "${CIAN}================================${RESET}"
+echo -e "${AZUL}Telefone: (33) 991619949${RESET}"
+echo -e "${CIAN}================================${RESET}"
 echo ""
 
-# =====================================================
-# PEDIR CÓDIGO DE ACESSO
-# =====================================================
-echo "🔑 DIGITE SEU CÓDIGO DE ACESSO (1 uso):"
-read -s CODE
-echo ""
-
-# Como não temos validate.php no GitHub, vamos fazer validação local
-# CÓDIGOS VÁLIDOS (você edita manualmente)
-VALID_CODES=(
-    "GRM-8F3A2B1C9D4E5F6A"
-    "GRM-1A2B3C4D5E6F7A8B"
-    "GRM-C9F8E7D6C5B4A392"
-    "GRM-TESTE-123"
-)
-
-VALID=0
-for valid in "${VALID_CODES[@]}"; do
-    if [ "$CODE" == "$valid" ]; then
-        VALID=1
-        break
-    fi
-done
-
-if [ $VALID -eq 0 ]; then
-    echo "❌ CÓDIGO INVÁLIDO!"
+# Verificar root
+if [ "$EUID" -ne 0 ]; then 
+    echo -e "${VERM}[ERRO] Precisa ser root, porra!${RESET}"
+    echo -e "${AMAR}Digite: sudo bash instalador_grm.sh${RESET}"
     exit 1
 fi
-echo "✅ Código válido!"
-echo ""
 
-# =====================================================
-# PARANDOO EMULATIONSTATION
-# =====================================================
-echo "▶ Parando EmulationStation..."
+# Parar EmulationStation
+echo -e "${AMAR}[1/5] Parando EmulationStation...${RESET}"
 /etc/init.d/S31emulationstation stop
-sleep 3
-echo "✅ OK"
-echo ""
+sleep 2
 
-# =====================================================
-# FAZENDO DOWNLOAD DO SISTEMA
-# =====================================================
-echo "▶ Baixando pasta grm-commercial..."
-wget -qO /tmp/grm-commercial.tar.gz "$BASE_URL/grm-commercial.tar.gz"
-if [ $? -ne 0 ]; then
-    echo "❌ Falha no download!"
-    exit 1
-fi
-echo "✅ Download concluído"
+# Baixar grm-commercial.tar.gz
+echo -e "${AMAR}[2/5] Baixando grm-commercial.tar.gz...${RESET}"
+cd /tmp
+wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/grm-commercial.tar.gz"
 
-echo "▶ Extraindo para /userdata/system..."
-tar -xzf /tmp/grm-commercial.tar.gz -C /userdata/system/
-echo "✅ Pasta copiada"
-echo ""
-
-# =====================================================
-# BAIXANDO E INSTALANDO DEPENDENCIAS
-# =====================================================
-echo "▶ Baixando batocera.conf..."
-wget -qO /userdata/system/batocera.conf "$BASE_URL/batocera.conf"
 if [ $? -eq 0 ]; then
-    echo "✅ batocera.conf instalado"
+    echo -e "${AMAR}Extraindo...${RESET}"
+    tar -xzf grm-commercial.tar.gz -C /userdata/system/
+    rm grm-commercial.tar.gz
+    echo -e "${VERD}[OK] grm-commercial instalado!${RESET}"
 else
-    echo "⚠️  Aviso: batocera.conf não encontrado"
-fi
-echo ""
-
-# =====================================================
-# TRANSFERINDO ARQUIVOS
-# =====================================================
-echo "▶ Baixando novo binário..."
-wget -qO /tmp/emulationstation "$BASE_URL/emulationstation"
-if [ $? -ne 0 ]; then
-    echo "❌ Falha no download do binário!"
+    echo -e "${VERM}[ERRO] Falha no download${RESET}"
     exit 1
 fi
-echo "✅ Download concluído"
 
-echo "▶ Copiando para /usr/bin/..."
-cp /tmp/emulationstation /usr/bin/emulationstation
-chmod 755 /usr/bin/emulationstation
-echo "✅ Binário instalado"
+# Baixar batocera.conf
+echo -e "${AMAR}[3/5] Baixando batocera.conf...${RESET}"
+wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/batocera.conf" -O /userdata/system/batocera.conf
+echo -e "${VERD}[OK] batocera.conf instalado!${RESET}"
+
+# Baixar emulationstation
+echo -e "${AMAR}[4/5] Baixando emulationstation...${RESET}"
+wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/emulationstation" -O /usr/bin/emulationstation
+chmod +x /usr/bin/emulationstation
+echo -e "${VERD}[OK] emulationstation instalado!${RESET}"
+
+# Iniciar EmulationStation
+echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
+/etc/init.d/S31emulationstation start
+
 echo ""
-
-# =====================================================
-# ATIVANDO MULTIJOGOS
-# =====================================================
-echo "▶ Ativando licença..."
-/usr/bin/emulationstation --chopper
-if [ $? -eq 0 ]; then
-    echo "✅ Licença ativada"
-else
-    echo "❌ Falha na ativação!"
-    exit 1
-fi
-echo ""
-
-# =====================================================
-# SALVANDO...
-# =====================================================
-echo "▶ Salvando overlay..."
-batocera-save-overlay 150
-if [ $? -eq 0 ]; then
-    echo "✅ Overlay salvo"
-else
-    echo "❌ Falha ao salvar overlay!"
-    exit 1
-fi
-echo ""
-
-# =====================================================
-# LIMPEZA DE CASH
-# =====================================================
-rm -f /tmp/grm-commercial.tar.gz /tmp/emulationstation
-
-# =====================================================
-# REINICIANDO SISTEMA...
-# =====================================================
-echo "========================================"
-echo "  INSTALAÇÃO CONCLUÍDA COM SUCESSO!"
-echo "  REINICIANDO EM 5 SEGUNDOS..."
-echo "========================================"
-
-sleep 5
-reboot
+echo -e "${VERD}================================${RESET}"
+echo -e "${VERd}  INSTALAÇÃO FINALIZADA PORRA!${RESET}"
+echo -e "${VERD}================================${RESET}"
+echo -e "${CIAN}GRM MULTIJOGOS - (33) 991619949${RESET}"
+echo -e "${VERD}================================${RESET}"
