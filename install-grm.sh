@@ -75,28 +75,42 @@ else
     exit 1
 fi
 
-# Baixar e copiar Evmapy.py
+# Baixar e copiar Evmapy.py (substituindo se existir)
 echo -e "${AMAR}[5/6] Baixando Evmapy.py...${RESET}"
 cd /tmp
+
+# Verificar se arquivo já existe no destino e fazer backup (opcional)
+DESTINO="/usr/lib/python3.12/site-packages/configgen/Evmapy.py"
+if [ -f "$DESTINO" ]; then
+    echo -e "${AMAR}Arquivo existente encontrado. Fazendo backup...${RESET}"
+    cp "$DESTINO" "${DESTINO}.backup.$(date +%Y%m%d_%H%M%S)"
+    echo -e "${VERD}[OK] Backup criado${RESET}"
+fi
+
+# Baixar o novo arquivo
 wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/Evmapy.py"
 
 if [ $? -eq 0 ]; then
     # Criar diretório de destino se não existir
-    mkdir -p /usr/lib/python3.12/site-packages/configgen
+    mkdir -p /usr/lib/python3.12/site-packages/configgen/
     
-    # Copiar arquivo
-    cp Evmapy.py /usr/lib/python3.12/site-packages/configgen/
+    # Copiar/substituir arquivo (forçando sobrescrita)
+    cp -f Evmapy.py "$DESTINO"
     
     # Verificar se a cópia foi bem sucedida
-    if [ -f "/usr/lib/python3.12/site-packages/configgen/Evmapy.py" ]; then
-        echo -e "${VERD}[OK] Evmapy.py instalado com sucesso!${RESET}"
+    if [ -f "$DESTINO" ]; then
+        echo -e "${VERD}[OK] Evmapy.py instalado/substituído com sucesso!${RESET}"
+        
+        # Definir permissões adequadas
+        chmod 644 "$DESTINO"
+        echo -e "${VERD}[OK] Permissões ajustadas${RESET}"
     else
         echo -e "${VERM}[ERRO] Falha ao copiar Evmapy.py${RESET}"
         exit 1
     fi
     
     # Limpar arquivo temporário
-    rm Evmapy.py
+    rm -f Evmapy.py
 else
     echo -e "${VERM}[ERRO] Falha no download do Evmapy.py${RESET}"
     exit 1
