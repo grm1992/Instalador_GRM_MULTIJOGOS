@@ -33,12 +33,12 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Parar EmulationStation
-echo -e "${AMAR}[1/5] Parando EmulationStation...${RESET}"
+echo -e "${AMAR}[1/6] Parando EmulationStation...${RESET}"
 /etc/init.d/S31emulationstation stop
 sleep 2
 
 # Baixar grm-commercial.tar.gz
-echo -e "${AMAR}[2/5] Baixando grm-commercial.tar.gz...${RESET}"
+echo -e "${AMAR}[2/6] Baixando grm-commercial.tar.gz...${RESET}"
 cd /tmp
 wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/grm-commercial.tar.gz"
 
@@ -53,7 +53,7 @@ else
 fi
 
 # Baixar batocera.conf
-echo -e "${AMAR}[3/5] Baixando batocera.conf...${RESET}"
+echo -e "${AMAR}[3/6] Baixando batocera.conf...${RESET}"
 wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/batocera.conf" -O /userdata/system/batocera.conf
 
 if [ $? -eq 0 ]; then
@@ -64,7 +64,7 @@ else
 fi
 
 # Baixar emulationstation
-echo -e "${AMAR}[4/5] Baixando emulationstation...${RESET}"
+echo -e "${AMAR}[4/6] Baixando emulationstation...${RESET}"
 wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/emulationstation" -O /usr/bin/emulationstation
 
 if [ $? -eq 0 ]; then
@@ -75,8 +75,35 @@ else
     exit 1
 fi
 
+# Baixar e copiar Evmapy.py
+echo -e "${AMAR}[5/6] Baixando Evmapy.py...${RESET}"
+cd /tmp
+wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/Evmapy.py"
+
+if [ $? -eq 0 ]; then
+    # Criar diretório de destino se não existir
+    mkdir -p /usr/lib/python3.12/site-packages/configgen
+    
+    # Copiar arquivo
+    cp Evmapy.py /usr/lib/python3.12/site-packages/configgen/
+    
+    # Verificar se a cópia foi bem sucedida
+    if [ -f "/usr/lib/python3.12/site-packages/configgen/Evmapy.py" ]; then
+        echo -e "${VERD}[OK] Evmapy.py instalado com sucesso!${RESET}"
+    else
+        echo -e "${VERM}[ERRO] Falha ao copiar Evmapy.py${RESET}"
+        exit 1
+    fi
+    
+    # Limpar arquivo temporário
+    rm Evmapy.py
+else
+    echo -e "${VERM}[ERRO] Falha no download do Evmapy.py${RESET}"
+    exit 1
+fi
+
 # Iniciar EmulationStation
-echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
+echo -e "${AMAR}[6/6] Iniciando EmulationStation...${RESET}"
 /etc/init.d/S31emulationstation restart
 
 echo ""
