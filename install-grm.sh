@@ -27,7 +27,7 @@ echo ""
 
 # Verificar root
 if [ "$EUID" -ne 0 ]; then 
-    echo -e "${VERM}[ERRO] Precisa ser root, porra!${RESET}"
+    echo -e "${VERM}[ERRO] Precisa ser root!${RESET}"
     echo -e "${AMAR}Digite: sudo bash instalador_grm.sh${RESET}"
     exit 1
 fi
@@ -122,7 +122,7 @@ echo -e "${AMAR}[6/6] Iniciando EmulationStation...${RESET}"
 
 echo ""
 echo -e "${VERD}================================${RESET}"
-echo -e "${VERD}  INSTALAÇÃO FINALIZADA PORRA!${RESET}"
+echo -e "${VERD}  INSTALAÇÃO FINALIZADA${RESET}"
 echo -e "${VERD}================================${RESET}"
 echo -e "${CIAN}GRM MULTIJOGOS - (33) 991619949${RESET}"
 echo -e "${VERD}================================${RESET}"
