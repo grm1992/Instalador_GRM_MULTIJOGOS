@@ -42,7 +42,7 @@ class Evmapy():
         
         standalone_emulators = [
             # Sistemas Windows
-            'wine', 'windows', 'windows_installers',
+            'wine', 'windows', 'windows_installers','ports',
             
             # Emuladores de consoles (Nintendo)
             'dolphin', 'dolphin-triforce',  # GameCube/Wii
