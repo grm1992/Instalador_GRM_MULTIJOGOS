@@ -80,7 +80,7 @@ echo -e "${AMAR}[5/6] Baixando Evmapy.py...${RESET}"
 cd /tmp
 
 # Verificar se arquivo já existe no destino e fazer backup (opcional)
-DESTINO="/usr/lib/python3.12/site-packages/configgen/Evmapy.py"
+DESTINO="/usr/lib/python3.11/site-packages/configgen/Evmapy.py"
 if [ -f "$DESTINO" ]; then
     echo -e "${AMAR}Arquivo existente encontrado. Fazendo backup...${RESET}"
     cp "$DESTINO" "${DESTINO}.backup.$(date +%Y%m%d_%H%M%S)"
