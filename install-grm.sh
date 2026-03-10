@@ -104,7 +104,7 @@ fi
 # Iniciar EmulationStation
 echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
 /etc/init.d/S31emulationstation restart
-
+batocera-save-overlay
 echo ""
 echo -e "${VERD}================================${RESET}"
 echo -e "${VERD}  INSTALAÇÃO FINALIZADA${RESET}"
