@@ -34,8 +34,24 @@ fi
 
 # Parar EmulationStation
 echo -e "${AMAR}[1/6] Parando EmulationStation...${RESET}"
-killall -9 emulationstation 2>/dev/null
+
+# Tentar parar normalmente primeiro
+/etc/init.d/S31emulationstation stop 2>/dev/null
 sleep 2
+
+# Forçar kill de qualquer processo remanescente
+killall -9 emulationstation 2>/dev/null
+pkill -9 -f "emulationstation" 2>/dev/null
+pkill -9 -f "emulationstation.py" 2>/dev/null
+
+# Verificar se realmente parou
+if pgrep -f "emulationstation" > /dev/null; then
+    echo -e "${AMAR}Processos ainda rodando, matando à força...${RESET}"
+    kill -9 $(pgrep -f "emulationstation") 2>/dev/null
+fi
+
+sleep 2
+echo -e "${VERD}[OK] EmulationStation parado${RESET}"
 
 # Baixar grm-commercial.tar.gz
 echo -e "${AMAR}[2/6] Baixando grm-commercial.tar.gz...${RESET}"
