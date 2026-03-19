@@ -34,7 +34,7 @@ fi
 
 # Parar EmulationStation
 echo -e "${AMAR}[1/6] Parando EmulationStation...${RESET}"
-/etc/init.d/S31emulationstation stop
+killall -9 emulationstation 2>/dev/null
 sleep 2
 
 # Baixar grm-commercial.tar.gz
