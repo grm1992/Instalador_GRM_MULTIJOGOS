@@ -33,12 +33,12 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Parar EmulationStation
-echo -e "${AMAR}[1/5] Parando EmulationStation...${RESET}"
+echo -e "${AMAR}[1/6] Parando EmulationStation...${RESET}"
 /etc/init.d/S31emulationstation stop
 sleep 2
 
 # Baixar grm-commercial.tar.gz
-echo -e "${AMAR}[2/5] Baixando grm-commercial.tar.gz...${RESET}"
+echo -e "${AMAR}[2/6] Baixando grm-commercial.tar.gz...${RESET}"
 cd /tmp
 wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/grm-commercial.tar.gz"
 
@@ -47,13 +47,21 @@ if [ $? -eq 0 ]; then
     tar -xzf grm-commercial.tar.gz -C /userdata/system/
     rm grm-commercial.tar.gz
     echo -e "${VERD}[OK] grm-commercial instalado!${RESET}"
+    
+    # Dar permissão ao watchdog.sh
+    if [ -f "/userdata/system/grm-commercial/watchdog.sh" ]; then
+        chmod +x "/userdata/system/grm-commercial/watchdog.sh"
+        echo -e "${VERD}[OK] Permissões concedidas ao watchdog.sh${RESET}"
+    else
+        echo -e "${AMAR}[AVISO] watchdog.sh não encontrado em /userdata/system/grm-commercial/${RESET}"
+    fi
 else
     echo -e "${VERM}[ERRO] Falha no download do grm-commercial.tar.gz${RESET}"
     exit 1
 fi
 
 # Baixar emulationstation
-echo -e "${AMAR}[3/5] Baixando emulationstation...${RESET}"
+echo -e "${AMAR}[3/6] Baixando emulationstation...${RESET}"
 wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/emulationstation" -O /usr/bin/emulationstation
 
 if [ $? -eq 0 ]; then
@@ -64,51 +72,63 @@ else
     exit 1
 fi
 
-# Baixar e copiar Evmapy.py (substituindo se existir)
-echo -e "${AMAR}[4/5] Baixando Evmapy.py...${RESET}"
+# Baixar e copiar S31emulationstation para /etc/init.d/
+echo -e "${AMAR}[4/6] Baixando S31emulationstation...${RESET}"
 cd /tmp
 
 # Verificar se arquivo já existe no destino e fazer backup
-DESTINO="/usr/lib/python3.11/site-packages/configgen/Evmapy.py"
-if [ -f "$DESTINO" ]; then
+DESTINO_INIT="/etc/init.d/S31emulationstation"
+if [ -f "$DESTINO_INIT" ]; then
     echo -e "${AMAR}Arquivo existente encontrado. Fazendo backup...${RESET}"
-    cp "$DESTINO" "${DESTINO}.backup.$(date +%Y%m%d_%H%M%S)"
+    cp "$DESTINO_INIT" "${DESTINO_INIT}.backup.$(date +%Y%m%d_%H%M%S)"
     echo -e "${VERD}[OK] Backup criado${RESET}"
 fi
 
-# Baixar o novo arquivo
-wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/Evmapy.py"
+# Baixar o novo arquivo S31emulationstation
+wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/S31emulationstation"
 
 if [ $? -eq 0 ]; then
-    # Criar diretório de destino se não existir
-    mkdir -p /usr/lib/python3.12/site-packages/configgen/
-    
     # Copiar/substituir arquivo
-    cp -f Evmapy.py "$DESTINO"
+    cp -f S31emulationstation "$DESTINO_INIT"
     
-    if [ -f "$DESTINO" ]; then
-        echo -e "${VERD}[OK] Evmapy.py instalado/substituído com sucesso!${RESET}"
-        chmod 644 "$DESTINO"
-        echo -e "${VERD}[OK] Permissões ajustadas${RESET}"
+    if [ -f "$DESTINO_INIT" ]; then
+        chmod 755 "$DESTINO_INIT"
+        echo -e "${VERD}[OK] S31emulationstation instalado/substituído com sucesso!${RESET}"
+        echo -e "${VERD}[OK] Permissões ajustadas (755)${RESET}"
     else
-        echo -e "${VERM}[ERRO] Falha ao copiar Evmapy.py${RESET}"
+        echo -e "${VERM}[ERRO] Falha ao copiar S31emulationstation${RESET}"
         exit 1
     fi
     
-    rm -f Evmapy.py
+    rm -f S31emulationstation
 else
-    echo -e "${VERM}[ERRO] Falha no download do Evmapy.py${RESET}"
+    echo -e "${VERM}[ERRO] Falha no download do S31emulationstation${RESET}"
     exit 1
 fi
 
 # Iniciar EmulationStation
-echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
+echo -e "${AMAR}[5/6] Iniciando EmulationStation...${RESET}"
 batocera-save-overlay
 /etc/init.d/S31emulationstation restart
+
+echo -e "${AMAR}[6/6] Verificando permissões finais...${RESET}"
+# Verificação adicional do watchdog.sh
+if [ -f "/userdata/system/grm-commercial/watchdog.sh" ]; then
+    chmod +x "/userdata/system/grm-commercial/watchdog.sh"
+    echo -e "${VERD}[OK] Permissões do watchdog.sh verificadas${RESET}"
+else
+    echo -e "${AMAR}[AVISO] watchdog.sh não encontrado. Verifique a instalação do grm-commercial${RESET}"
+fi
 
 echo ""
 echo -e "${VERD}================================${RESET}"
 echo -e "${VERD}  INSTALAÇÃO FINALIZADA${RESET}"
 echo -e "${VERD}================================${RESET}"
 echo -e "${CIAN}GRM MULTIJOGOS - (33) 991619949${RESET}"
+echo -e "${VERD}================================${RESET}"
+echo -e "${AMAR}Arquivos instalados:${RESET}"
+echo -e "${AZUL}- /userdata/system/grm-commercial/${RESET}"
+echo -e "${AZUL}- /usr/bin/emulationstation${RESET}"
+echo -e "${AZUL}- /etc/init.d/S31emulationstation${RESET}"
+echo -e "${AZUL}- /userdata/system/grm-commercial/watchdog.sh (com permissão de execução)${RESET}"
 echo -e "${VERD}================================${RESET}"
