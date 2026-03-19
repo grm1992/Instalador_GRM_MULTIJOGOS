@@ -122,7 +122,7 @@ fi
 # Iniciar EmulationStation
 echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
 batocera-save-overlay
-/etc/init.d/S31emulationstation restart
+/etc/init.d/S31emulationstation start
 
 echo ""
 echo -e "${VERD}================================${RESET}"
