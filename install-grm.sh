@@ -115,20 +115,18 @@ echo -e "${AMAR}[6/6] Verificando permissões finais...${RESET}"
 # Verificação adicional do watchdog.sh
 if [ -f "/userdata/system/grm-commercial/watchdog.sh" ]; then
     chmod +x "/userdata/system/grm-commercial/watchdog.sh"
-    echo -e "${VERD}[OK] Permissões do watchdog.sh verificadas${RESET}"
+    echo -e "${VERD}[OK] Permissões verificadas${RESET}"
 else
     echo -e "${AMAR}[AVISO] watchdog.sh não encontrado. Verifique a instalação do grm-commercial${RESET}"
 fi
+# Iniciar EmulationStation
+echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
+batocera-save-overlay
+/etc/init.d/S31emulationstation restart
 
 echo ""
 echo -e "${VERD}================================${RESET}"
 echo -e "${VERD}  INSTALAÇÃO FINALIZADA${RESET}"
 echo -e "${VERD}================================${RESET}"
 echo -e "${CIAN}GRM MULTIJOGOS - (33) 991619949${RESET}"
-echo -e "${VERD}================================${RESET}"
-echo -e "${AMAR}Arquivos instalados:${RESET}"
-echo -e "${AZUL}- /userdata/system/grm-commercial/${RESET}"
-echo -e "${AZUL}- /usr/bin/emulationstation${RESET}"
-echo -e "${AZUL}- /etc/init.d/S31emulationstation${RESET}"
-echo -e "${AZUL}- /userdata/system/grm-commercial/watchdog.sh (com permissão de execução)${RESET}"
 echo -e "${VERD}================================${RESET}"
