@@ -1,0 +1,84 @@
+#!/bin/sh
+BOOTCONF="/boot/batocera-boot.conf"
+
+. /etc/profile.d/xdg.sh
+. /etc/profile.d/dbus.sh
+
+case "$1" in
+	start)
+	    enabled="$(/usr/bin/batocera-settings-get system.es.atstartup)"
+	    if [ "$enabled" != "0" ]; then
+		# ==============================================
+		# GRM COMERCIAL - FORÇA MODO KIOSK COM REINICIO
+		# ==============================================
+		(
+			while true; do
+				# CRIA O XINITRC A CADA ITERAÇÃO
+				cat > /tmp/xinitrc << 'EOF'
+#!/bin/sh
+# Executa o ES com force-kiosk
+/usr/bin/emulationstation --force-kiosk
+# Quando o ES fechar, sai do xinit (que vai reiniciar pelo loop)
+exit 0
+EOF
+				chmod +x /tmp/xinitrc
+				
+				# Inicia o X com nosso xinitrc personalizado
+				xinit /tmp/xinitrc -- :0 -keeptty vt2
+				
+				# Se chegou aqui, o ES fechou
+				LOG_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+				echo "$LOG_DATE - ES finalizado, reiniciando em 2 segundos..." >> /userdata/system/logs/es_reboot.log
+				sleep 2
+				
+				# Remove o xinitrc (opcional, será recriado na próxima iteração)
+				rm -f /tmp/xinitrc 2>/dev/null
+			done
+		) &
+		
+		# Backup do xinitrc original (só uma vez)
+		cp /etc/X11/xinit/xinitrc /tmp/xinitrc.original 2>/dev/null
+		# ==============================================
+	    fi
+	    ;;
+
+	stop)
+        emulationstation-standalone --stop-rebooting
+		killall openbox   2>/dev/null # for xorg
+		killall sway      2>/dev/null # for wayland
+		killall emulationstation 2>/dev/null
+		killall touchegg 2>/dev/null
+		
+		# Mata o loop de reinicio
+		pkill -f "xinit /tmp/xinitrc" 2>/dev/null
+		pkill -f "while true.*xinit" 2>/dev/null
+		pkill -f "S31emulationstation.*start" 2>/dev/null
+		
+		if [ $? -eq 0 ]; then
+			sleep 20 &
+			watchdog=$!
+			while ! [ -z $(pidof emulationstation) ]; do
+				sleep 0.25
+				$(kill -0 $watchdog) || exit
+			done
+			kill -9 $watchdog
+		fi
+		
+		# Restaura o xinitrc original (se existir)
+		if [ -f /tmp/xinitrc.original ]; then
+			mv /tmp/xinitrc.original /etc/X11/xinit/xinitrc 2>/dev/null
+		fi
+		rm -f /tmp/xinitrc 2>/dev/null
+		;;
+
+	restart|reload)
+		"$0" stop
+		"$0" start
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
+
+exit $?
