@@ -39,11 +39,11 @@ sleep 2
 
 # Baixar grm-commercial.tar.gz
 echo -e "${AMAR}[2/6] Baixando grm-commercial.tar.gz...${RESET}"
-cd /tmp
+cd /tmp || exit 1
 wget -q --show-progress "https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/grm-commercial.tar.gz"
 
 if [ $? -eq 0 ]; then
-    echo -e "${AMAR}Extraindo...${RESET}"
+    echo -e "${AMAR}[2/6] Extraindo...${RESET}"
     tar -xzf grm-commercial.tar.gz -C /userdata/system/
     rm grm-commercial.tar.gz
     echo -e "${VERD}[OK] grm-commercial instalado!${RESET}"
@@ -74,12 +74,12 @@ fi
 
 # Baixar e copiar S31emulationstation para /etc/init.d/
 echo -e "${AMAR}[4/6] Baixando S31emulationstation...${RESET}"
-cd /tmp
+cd /tmp || exit 1
 
 # Verificar se arquivo já existe no destino e fazer backup
 DESTINO_INIT="/etc/init.d/S31emulationstation"
 if [ -f "$DESTINO_INIT" ]; then
-    echo -e "${AMAR}Arquivo existente encontrado. Fazendo backup...${RESET}"
+    echo -e "${AMAR}[4/6] Arquivo existente encontrado. Fazendo backup...${RESET}"
     cp "$DESTINO_INIT" "${DESTINO_INIT}.backup.$(date +%Y%m%d_%H%M%S)"
     echo -e "${VERD}[OK] Backup criado${RESET}"
 fi
@@ -107,9 +107,9 @@ else
 fi
 
 # Iniciar EmulationStation
-echo -e "${AMAR}[5/6] Iniciando EmulationStation...${RESET}"
+echo -e "${AMAR}[5/6] Salvando overlay e iniciando EmulationStation...${RESET}"
 batocera-save-overlay
-/etc/init.d/S31emulationstation restart
+/etc/init.d/S31emulationstation start
 
 echo -e "${AMAR}[6/6] Verificando permissões finais...${RESET}"
 # Verificação adicional do watchdog.sh
@@ -119,10 +119,6 @@ if [ -f "/userdata/system/grm-commercial/watchdog.sh" ]; then
 else
     echo -e "${AMAR}[AVISO] watchdog.sh não encontrado. Verifique a instalação do grm-commercial${RESET}"
 fi
-# Iniciar EmulationStation
-echo -e "${AMAR}[5/5] Iniciando EmulationStation...${RESET}"
-batocera-save-overlay
-/etc/init.d/S31emulationstation start
 
 echo ""
 echo -e "${VERD}================================${RESET}"
