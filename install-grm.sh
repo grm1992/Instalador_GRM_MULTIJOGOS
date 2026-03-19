@@ -126,3 +126,8 @@ echo -e "${VERD}  INSTALAÇÃO FINALIZADA${RESET}"
 echo -e "${VERD}================================${RESET}"
 echo -e "${CIAN}GRM MULTIJOGOS - (33) 991619949${RESET}"
 echo -e "${VERD}================================${RESET}"
+
+# Reboot ao final
+echo -e "${AMAR}Reiniciando o sistema em 5 segundos...${RESET}"
+sleep 5
+reboot
