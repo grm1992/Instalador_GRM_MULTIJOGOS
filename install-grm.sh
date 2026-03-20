@@ -134,7 +134,6 @@ fi
 # Iniciar EmulationStation
 echo -e "${AMAR}[5/6] Salvando overlay e iniciando EmulationStation...${RESET}"
 batocera-save-overlay
-/etc/init.d/S31emulationstation start
 
 echo -e "${AMAR}[6/6] Verificando permissões finais...${RESET}"
 # Verificação adicional do watchdog.sh
