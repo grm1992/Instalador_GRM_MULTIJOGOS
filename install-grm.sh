@@ -35,9 +35,18 @@ fi
 # Parar EmulationStation
 echo -e "${AMAR}[1/6] Parando EmulationStation...${RESET}"
 
-# Tentar parar normalmente primeiro
-/etc/init.d/S31emulationstation stop 2>/dev/null
+# REMOVER o S31emulationstation temporariamente (impede reinicialização)
+if [ -f "/etc/init.d/S31emulationstation" ]; then
+    echo -e "${AMAR}Removendo S31emulationstation temporariamente...${RESET}"
+    mv /etc/init.d/S31emulationstation /etc/init.d/S31emulationstation.instalador 2>/dev/null
+fi
+
+# Matar o ES
+killall -9 emulationstation 2>/dev/null
+pkill -9 -f "emulationstation" 2>/dev/null
 sleep 2
+
+echo -e "${VERD}[OK] EmulationStation parado (S31 removido temporariamente)${RESET}"
 
 # Forçar kill de qualquer processo remanescente
 killall -9 emulationstation 2>/dev/null
